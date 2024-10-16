@@ -42,7 +42,7 @@ const Login = () => {
       };
 
       const { data } = await axios.post(
-        "/api/user/login",
+        `${process.env.REACT_APP_URL}/api/user/login`,
         { email, password },
         config
       );
@@ -51,7 +51,7 @@ const Login = () => {
       setUser(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate("/chats");
+      navigate(`${process.env.REACT_APP_URL}/chats`);
     } catch (error) {
       toast.error(error.response.data.message || "Error Occurred");
       setLoading(false);
