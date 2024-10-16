@@ -50,6 +50,7 @@ const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
     origin: "https://chat-app-b88m.onrender.com/",
+    methods: ["GET", "POST"],
     // credentials: true,
   },
 });
