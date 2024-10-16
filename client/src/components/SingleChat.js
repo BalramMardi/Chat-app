@@ -22,7 +22,7 @@ import "./styles.css";
 import { useTheme } from "../Context/ThemeProvider";
 
 // const ENDPOINT = "http://localhost:5000";
-const ENDPOINT = "https://chat-app-b88m.onrender.com";
+const ENDPOINT = "https://chat-app-b88m.onrender.com/";
 
 var socket, selectedChatCompare;
 
