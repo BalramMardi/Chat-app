@@ -21,7 +21,9 @@ import { ChatState } from "../Context/ChatProvider";
 import "./styles.css";
 import { useTheme } from "../Context/ThemeProvider";
 
-const ENDPOINT = "http://localhost:5000";
+// const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://chat-app-b88m.onrender.com";
+
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
