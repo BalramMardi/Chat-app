@@ -48,7 +48,7 @@ const Signup = () => {
       };
 
       const { data } = await axios.post(
-        `${process.env.REACT_APP_URL}/api/user`,
+        "/api/user",
         { name, email, password, pic },
         config
       );
@@ -56,7 +56,7 @@ const Signup = () => {
       toast.success("Registration Successful");
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate(`${process.env.REACT_APP_URL}/chats`);
+      navigate("/chats");
     } catch (error) {
       toast.error(error.response?.data?.message || "Error Occurred");
       setLoading(false);

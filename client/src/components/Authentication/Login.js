@@ -51,7 +51,7 @@ const Login = () => {
       setUser(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate(`${process.env.REACT_APP_URL}/chats`);
+      navigate("/chats");
     } catch (error) {
       toast.error(error.response.data.message || "Error Occurred");
       setLoading(false);
