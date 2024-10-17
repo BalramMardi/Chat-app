@@ -42,7 +42,7 @@ const Login = () => {
       };
 
       const { data } = await axios.post(
-        `${process.env.REACT_APP_URL}/api/user/login`,
+        "/api/user/login",
         { email, password },
         config
       );
