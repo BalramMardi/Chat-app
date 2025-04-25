@@ -39,7 +39,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
   const handleSearch = async (query) => {
     setSearch(query);
     if (!query) {
-      setSearchResult([]); // Clear search results if query is empty
+      setSearchResult([]);
       return;
     }
 
@@ -84,7 +84,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
       setError(error.response.data.message);
     } finally {
       setRenameLoading(false);
-      setGroupChatName(""); // Clear input field after renaming
+      setGroupChatName("");
     }
   };
 

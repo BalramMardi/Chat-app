@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Updated to useNavigate
+import { useNavigate } from "react-router-dom";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
 
 function Homepage() {
-  const navigate = useNavigate(); // Updated from useHistory
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userInfo"));
 
-    if (user) navigate("/chats"); // Updated to use navigate
+    if (user) navigate("/chats");
   }, [navigate]);
 
   return (

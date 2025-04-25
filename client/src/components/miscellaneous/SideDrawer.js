@@ -13,7 +13,7 @@ import {
   Input,
   CircularProgress,
   Badge,
-  Switch, // Import Switch here
+  Switch,
 } from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -46,8 +46,7 @@ function SideDrawer() {
     setNotification,
     chats,
     setChats,
-    // Destructure the toggleTheme function
-  } = ChatState(); // Get toggleTheme from context
+  } = ChatState();
 
   const { toggleTheme } = useTheme();
 
