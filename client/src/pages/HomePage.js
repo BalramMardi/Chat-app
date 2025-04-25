@@ -24,7 +24,11 @@ function Homepage() {
             <ul className="flex mb-4">
               <li className="flex-1 text-center">
                 <button
-                  className="py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100 transition-colors duration-200"
+                  className={`py-2 w-full transition-colors duration-200 ${
+                    activeTab === "login"
+                      ? "bg-blue-500 text-white font-semibold rounded-t-md"
+                      : "hover:bg-gray-100"
+                  }`}
                   onClick={() => setActiveTab("login")}
                 >
                   Login
@@ -32,7 +36,11 @@ function Homepage() {
               </li>
               <li className="flex-1 text-center">
                 <button
-                  className="py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100 transition-colors duration-200"
+                  className={`py-2 w-full transition-colors duration-200 ${
+                    activeTab === "signup"
+                      ? "bg-blue-500 text-white font-semibold rounded-t-md"
+                      : "hover:bg-gray-100"
+                  }`}
                   onClick={() => setActiveTab("signup")}
                 >
                   Sign Up

@@ -151,7 +151,6 @@ const Signup = () => {
         />
       </FormControl>
       <FormControl fullWidth variant="outlined">
-        <InputLabel>Upload your Picture</InputLabel>
         <Button variant="contained" component="label">
           Upload Image
           <input

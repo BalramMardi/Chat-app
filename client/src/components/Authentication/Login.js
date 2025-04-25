@@ -98,17 +98,6 @@ const Login = () => {
       >
         {loading ? "Loading..." : "Login"}
       </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        fullWidth
-        onClick={() => {
-          setEmail("guest@example.com");
-          setPassword("123456");
-        }}
-      >
-        Get Guest User Credentials
-      </Button>
     </Box>
   );
 };
