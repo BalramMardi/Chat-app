@@ -4,12 +4,21 @@ const dotenv = require("dotenv");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const cors = require("cors");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
 
 dotenv.config();
 connectDB();
 const app = express();
+
+app.use(
+  cors({
+    origin: process.env.ORIGIN,
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -49,7 +58,7 @@ const server = app.listen(
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "https://chat-app-b88m.onrender.com/",
+    origin: process.env.ORIGIN,
     methods: ["GET", "POST"],
     // credentials: true,
   },
@@ -79,6 +88,11 @@ io.on("connection", (socket) => {
 
       socket.in(user._id).emit("message received", newMessageRecieved);
     });
+  });
+
+
+  socket.on("mark read", ({ chatId, userId }) => {
+    socket.in(chatId).emit("messages read", { chatId, readerId: userId });
   });
 
   socket.off("setup", () => {

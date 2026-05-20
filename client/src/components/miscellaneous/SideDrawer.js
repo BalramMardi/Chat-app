@@ -13,7 +13,6 @@ import {
   Input,
   CircularProgress,
   Badge,
-  Switch,
 } from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -23,6 +22,7 @@ import axios from "axios";
 import ChatLoading from "../ChatLoading";
 import UserListItem from "../userAvatar/UserListItem";
 import ProfileModal from "./ProfileModal";
+import ProfilePictureModal from "./ProfilePictureModal";
 import { ChatState } from "../../Context/ChatProvider";
 import { getSender } from "../../config/ChatLogics";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +37,8 @@ function SideDrawer() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notificationMenuAnchorEl, setNotificationMenuAnchorEl] =
     useState(null);
-  const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState(null); // State for profile menu
+  const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState(null);
+  const [profilePictureModalOpen, setProfilePictureModalOpen] = useState(false);
 
   const {
     setSelectedChat,
@@ -47,8 +48,6 @@ function SideDrawer() {
     chats,
     setChats,
   } = ChatState();
-
-  const { toggleTheme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -113,21 +112,44 @@ function SideDrawer() {
     setProfileMenuAnchorEl(null);
   };
 
+  const handleProfilePictureModalOpen = (event) => {
+    event.stopPropagation();
+    setProfilePictureModalOpen(true);
+    handleProfileMenuClose();
+  };
+
+  const handleProfilePictureModalClose = () => {
+    setProfilePictureModalOpen(false);
+  };
+
   return (
     <>
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        bgcolor="white"
         width="100%"
         padding="5px 10px"
         borderWidth="5px"
-        sx={{ backgroundColor: theme.palette.background.extra[400] }}
+        sx={{
+          background: "rgba(15, 23, 42, 0.9)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+        }}
         color={theme.palette.text.primary}
       >
         <Tooltip title="Search Users to chat" arrow>
-          <Button variant="text" onClick={() => setDrawerOpen(true)}>
+          <Button
+            variant="text"
+            onClick={() => setDrawerOpen(true)}
+            sx={{
+              color: theme.palette.text.primary,
+              "&:hover": {
+                background: "rgba(99, 102, 241, 0.15)",
+              },
+            }}
+          >
             <SearchIcon />
             <Typography display={{ xs: "none", md: "flex" }} paddingX={1}>
               Search User
@@ -140,17 +162,24 @@ function SideDrawer() {
           sx={{
             fontSize: { xs: "24px", sm: "28px", md: "32px", lg: "36px" },
             textAlign: "center",
+            background: "linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #818cf8 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
           }}
         >
           WhizChat
         </Typography>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Switch
-            onChange={toggleTheme}
-            color="primary"
-            inputProps={{ "aria-label": "Toggle Theme" }}
-          />
-          <IconButton onClick={handleNotificationMenuOpen}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <IconButton
+            onClick={handleNotificationMenuOpen}
+            sx={{
+              color: theme.palette.primary.main,
+              "&:hover": {
+                background: "rgba(99, 102, 241, 0.15)",
+              },
+            }}
+          >
             <Badge
               badgeContent={notification.length}
               color="error"
@@ -159,9 +188,8 @@ function SideDrawer() {
             >
               <NotificationsIcon
                 sx={{
-                  fontSize: { xs: "24px", sm: "28px", md: "32px", lg: "36px" }, // Responsive font sizes
+                  fontSize: { xs: "24px", sm: "28px", md: "32px", lg: "36px" },
                 }}
-                color="primary"
               />
             </Badge>
           </IconButton>
@@ -187,20 +215,42 @@ function SideDrawer() {
             ))}
           </Menu>
 
-          <IconButton onClick={handleProfileMenuOpen}>
+          <IconButton
+            onClick={handleProfilePictureModalOpen}
+            sx={{
+              "&:hover": {
+                background: "rgba(99, 102, 241, 0.15)",
+              },
+            }}
+          >
             <Avatar
               sx={{
-                mr: 1,
+                // mr: 1,
                 cursor: "pointer",
-                width: { xs: "24px", sm: "28px", md: "32px", lg: "36px" }, // Responsive width
-                height: { xs: "24px", sm: "28px", md: "32px", lg: "36px" }, // Responsive height
+                width: { xs: "24px", sm: "28px", md: "32px", lg: "36px" },
+                height: { xs: "24px", sm: "28px", md: "32px", lg: "36px" },
+                border: "2px solid rgba(99, 102, 241, 0.3)",
+                backgroundColor: "rgba(99, 102, 241, 0.3)",
+                fontSize: "0.8rem",
               }}
               src={user.pic}
               alt={user.name}
-            />
+            >
+              {!user.pic || user.pic === "" ? user.name.charAt(0).toUpperCase() : ""}
+            </Avatar>
+          </IconButton>
+          <IconButton
+            onClick={handleProfileMenuOpen}
+            sx={{
+              color: "white",
+              "&:hover": {
+                background: "rgba(99, 102, 241, 0.15)",
+              },
+            }}
+          >
             <ExpandMoreIcon
               sx={{
-                fontSize: { xs: "24px", sm: "28px", md: "32px", lg: "36px" }, // Responsive font sizes
+                fontSize: { xs: "24px", sm: "28px", md: "32px", lg: "36px" },
               }}
             />
           </IconButton>
@@ -225,14 +275,39 @@ function SideDrawer() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
       >
-        <Box padding={2}>
-          <Typography variant="h6">Search Users</Typography>
+        <Box
+          padding={2}
+          sx={{
+            background: "rgba(15, 23, 42, 0.95)",
+            backdropFilter: "blur(10px)",
+            minWidth: "300px",
+            borderRight: "1px solid rgba(148, 163, 184, 0.2)",
+            height:"stretch"
+          }}
+        >
+          <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
+            Search Users
+          </Typography>
           <Box display="flex" paddingBottom={2}>
             <Input
               placeholder="Search by name or email"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              sx={{ marginRight: 1 }}
+              sx={{
+                marginRight: 1,
+                color: theme.palette.text.primary,
+                background: "rgba(30, 41, 59, 0.8)",
+                padding: "0.5rem",
+                borderRadius: "8px",
+                border: "1px solid rgba(148, 163, 184, 0.25)",
+                "&:hover": {
+                  borderColor: "rgba(148, 163, 184, 0.35)",
+                },
+                "&:focus": {
+                  outline: "none",
+                  borderColor: "rgba(99, 102, 241, 0.5)",
+                },
+              }}
             />
             <Button variant="contained" onClick={handleSearch}>
               Go
@@ -254,6 +329,10 @@ function SideDrawer() {
           )}
         </Box>
       </Drawer>
+      <ProfilePictureModal
+        open={profilePictureModalOpen}
+        onClose={handleProfilePictureModalClose}
+      />
     </>
   );
 }

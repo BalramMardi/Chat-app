@@ -43,12 +43,17 @@ const MyChats = ({ fetchAgain }) => {
       flexDirection="column"
       alignItems="center"
       p={3}
-      bgcolor="white"
       width={{ xs: "100%", md: "31%" }}
       borderRadius={2}
       border={1}
       borderColor="divider"
-      sx={{ backgroundColor: theme.palette.background.extra.default }}
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+        background: "rgba(15, 23, 42, 0.8)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(148, 163, 184, 0.2)",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+      }}
     >
       <Box
         paddingBottom={3}
@@ -67,7 +72,6 @@ const MyChats = ({ fetchAgain }) => {
             sx={{
               display: "flex",
               fontSize: { xs: "17px", md: "10px", lg: "17px" },
-              backgroundColor: theme.palette.primary.main,
             }}
             startIcon={<AddIcon />}
             variant="contained"
@@ -80,14 +84,13 @@ const MyChats = ({ fetchAgain }) => {
         display="flex"
         flexDirection="column"
         p={3}
-        bgcolor="#F8F8F8"
         width="100%"
         height="100%"
         borderRadius={1}
         overflowY="hidden"
         sx={{
           color: theme.palette.text.primary,
-          backgroundColor: theme.palette.background.default,
+          backgroundColor: "rgba(30, 41, 59, 0.5)",
         }}
       >
         {chats ? (
@@ -100,15 +103,24 @@ const MyChats = ({ fetchAgain }) => {
                   cursor: "pointer",
                   bgcolor:
                     selectedChat === chat
-                      ? "#38B2AC"
-                      : theme.palette.background.extra[200],
+                      ? "rgba(99, 102, 241, 0.3)"
+                      : "rgba(99, 102, 241, 0.1)",
                   color:
                     selectedChat === chat
-                      ? "white"
-                      : theme.palette.text.primary,
+                      ? theme.palette.text.primary
+                      : theme.palette.text.secondary,
                   paddingX: 3,
                   paddingY: 2,
                   borderRadius: 2,
+                  border: selectedChat === chat
+                    ? "1px solid rgba(99, 102, 241, 0.5)"
+                    : "1px solid rgba(148, 163, 184, 0.2)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(99, 102, 241, 0.2)",
+                    borderColor: "rgba(99, 102, 241, 0.4)",
+                    boxShadow: "0 0 20px rgba(99, 102, 241, 0.1)",
+                  },
                 }}
               >
                 <Typography>

@@ -2,56 +2,85 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
+import "../components/Authentication/Authentication.css";
 
 function Homepage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
+  const [stars, setStars] = useState([]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userInfo"));
-
     if (user) navigate("/chats");
   }, [navigate]);
 
+  useEffect(() => {
+    const generateStars = () => {
+      const starArray = [];
+      for (let i = 0; i < 100; i++) {
+        starArray.push({
+          id: i,
+          left: Math.random() * 100,
+          top: Math.random() * 100,
+          size: Math.random() * 2 + 0.5,
+          duration: Math.random() * 2 + 2,
+          delay: Math.random() * 5,
+        });
+      }
+      setStars(starArray);
+    };
+    generateStars();
+  }, []);
+
   return (
-    <div className="flex flex-col items-center max-w-xl mx-auto">
-      <div className="flex justify-center p-3 bg-white w-full mt-10 mb-4 rounded-lg border border-gray-300">
-        <h1 className="text-4xl font-sans">WhizChat</h1>
+    <>
+      {/* Fixed background layer: gradient + aurora + stars — never scrolls */}
+      <div className="auth-container">
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            className="stars"
+            style={{
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              animationDuration: `${star.duration}s`,
+              animationDelay: `${star.delay}s`,
+            }}
+          />
+        ))}
       </div>
-      <div className="bg-white w-full p-4 rounded-lg border border-gray-300">
-        <div className="flex justify-center">
-          <div className="w-full">
-            <ul className="flex mb-4">
-              <li className="flex-1 text-center">
-                <button
-                  className={`py-2 w-full transition-colors duration-200 ${
-                    activeTab === "login"
-                      ? "bg-blue-500 text-white font-semibold rounded-t-md"
-                      : "hover:bg-gray-100"
-                  }`}
-                  onClick={() => setActiveTab("login")}
-                >
-                  Login
-                </button>
-              </li>
-              <li className="flex-1 text-center">
-                <button
-                  className={`py-2 w-full transition-colors duration-200 ${
-                    activeTab === "signup"
-                      ? "bg-blue-500 text-white font-semibold rounded-t-md"
-                      : "hover:bg-gray-100"
-                  }`}
-                  onClick={() => setActiveTab("signup")}
-                >
-                  Sign Up
-                </button>
-              </li>
-            </ul>
-            <div>{activeTab === "login" ? <Login /> : <Signup />}</div>
+
+      {/* Scrollable layer: sits on top of background, holds the card */}
+      <div className="auth-scroll-layer">
+        <div className="auth-wrapper card-border-glow">
+          <h1 className="gradient-heading">WhizChat</h1>
+          <p className="gradient-subheading">Connect • Chat • Collaborate</p>
+
+          <div className="glass-panel">
+            <div className="nav-tabs-container">
+              <button
+                className={`nav-tab-button ${activeTab === "login" ? "active" : ""}`}
+                onClick={() => setActiveTab("login")}
+              >
+                Login
+              </button>
+              <button
+                className={`nav-tab-button ${activeTab === "signup" ? "active" : ""}`}
+                onClick={() => setActiveTab("signup")}
+              >
+                Sign Up
+              </button>
+            </div>
+
+            <div className="form-container">
+              {activeTab === "login" ? <Login /> : <Signup />}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

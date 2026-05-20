@@ -9,6 +9,31 @@ import {
 } from "../config/ChatLogics";
 import { ChatState } from "../Context/ChatProvider";
 
+import DoneIcon from "@mui/icons-material/Done";        
+import DoneAllIcon from "@mui/icons-material/DoneAll";  
+
+const MessageStatus = ({ message, currentUserId, chatUsers }) => {
+  // Only show ticks on your own messages
+  if (message.sender._id !== currentUserId) return null;
+
+  const totalRecipients = chatUsers.filter(u => u._id !== currentUserId).length;
+  const readCount = message.readBy.filter(id => id !== currentUserId).length;
+
+  // All recipients have read it
+  if (readCount >= totalRecipients) {
+    return <DoneAllIcon sx={{ fontSize: 14, color: "#60a5fa", ml: 0.5 }} />;
+  }
+
+  // Message exists in DB (we have _id) but nobody read yet = delivered
+  if (message._id) {
+    return <DoneAllIcon sx={{ fontSize: 14, color: "#94a3b8", ml: 0.5 }} />;
+  }
+
+  // Optimistic message, not yet confirmed by server = sent
+  return <DoneIcon sx={{ fontSize: 14, color: "#94a3b8", ml: 0.5 }} />;
+};
+
+
 const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
 
@@ -21,25 +46,47 @@ const ScrollableChat = ({ messages }) => {
               isLastMessage(messages, i, user._id)) && (
               <Tooltip title={m.sender.name} placement="bottom-start" arrow>
                 <Avatar
-                  sx={{ mt: "7px", mr: 1, cursor: "pointer" }}
+                  sx={{
+                    mt: "7px",
+                    mr: 1,
+                    cursor: "pointer",
+                    backgroundColor: "rgba(99, 102, 241, 0.3)",
+                  }}
                   alt={m.sender.name}
                   src={m.sender.pic}
-                />
+                >
+                  {!m.sender.pic || m.sender.pic === ""
+                    ? m.sender.name.charAt(0).toUpperCase()
+                    : ""}
+                </Avatar>
               </Tooltip>
             )}
             <span
               style={{
-                backgroundColor: `${
-                  m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
-                }`,
+                background: m.sender._id === user._id
+                  ? "linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(99, 102, 241, 0.2) 100%)"
+                  : "linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.2) 100%)",
+                border: m.sender._id === user._id
+                  ? "1px solid rgba(99, 102, 241, 0.5)"
+                  : "1px solid rgba(139, 92, 246, 0.5)",
+                color: "#e2e8f0",
                 marginLeft: isSameSenderMargin(messages, m, i, user._id),
                 marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
-                borderRadius: "20px",
-                padding: "5px 15px",
+                borderRadius: "18px",
+                padding: "8px 12px",
                 maxWidth: "75%",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
               }}
             >
               {m.content}
+               <MessageStatus
+                  message={m}
+                  currentUserId={user._id}
+                  chatUsers={m.chat.users}
+              />
             </span>
           </div>
         ))}

@@ -33,6 +33,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     sender: req.user._id,
     content: content,
     chat: chatId,
+    readBy: [req.user._id], 
   };
 
   try {
@@ -54,4 +55,22 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { allMessages, sendMessage };
+
+const markMessagesAsRead = asyncHandler(async (req, res) => {
+  try {
+    await Message.updateMany(
+      {
+        chat: req.params.chatId,
+        readBy: { $ne: req.user._id },   
+        sender: { $ne: req.user._id },  
+      },
+      { $addToSet: { readBy: req.user._id } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+    }
+});
+
+module.exports = { allMessages, sendMessage, markMessagesAsRead };

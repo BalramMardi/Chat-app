@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import ScrollableChat from "./ScrollableChat";
@@ -22,7 +22,7 @@ import "./styles.css";
 import { useTheme } from "../Context/ThemeProvider";
 
 // const ENDPOINT = "http://localhost:5000";
-const ENDPOINT = "https://chat-app-b88m.onrender.com/";
+const ENDPOINT = import.meta.env.VITE_API_URL;
 
 var socket, selectedChatCompare;
 
@@ -67,6 +67,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(false);
 
       socket.emit("join chat", selectedChat._id);
+
+
+      await axios.put(`/api/message/read/${selectedChat._id}`, {}, config);
+      socket.emit("mark read", { chatId: selectedChat._id, userId: user._id });
     } catch (error) {
       console.log(error);
     }
@@ -114,7 +118,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("message received", (newMessageReceived) => {
+    socket.on("message received", async (newMessageReceived) => {
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
@@ -125,31 +129,50 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         }
       } else {
         setMessages([...messages, newMessageReceived]);
+
+        const config = { headers: { Authorization: `Bearer ${user.token}` } };
+        await axios.put(`/api/message/read/${newMessageReceived.chat._id}`, {}, config);
+        socket.emit("mark read", {
+          chatId: newMessageReceived.chat._id,
+          userId: user._id,
+        });
+      }
+    });
+
+    socket.on("messages read", ({ chatId, readerId }) => {
+      if (selectedChatCompare?._id === chatId) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.readBy.includes(readerId)
+              ? msg
+              : { ...msg, readBy: [...msg.readBy, readerId] }
+          )
+        );
       }
     });
   });
 
-  const typingHandler = (e) => {
-    setNewMessage(e.target.value);
+const typingTimeoutRef = useRef(null);
 
-    if (!socketConnected) return;
+const typingHandler = (e) => {
+  setNewMessage(e.target.value);
 
-    if (!typing) {
-      setTyping(true);
-      socket.emit("typing", selectedChat._id);
-    }
+  if (!socketConnected) return;
 
-    let lastTypingTime = new Date().getTime();
-    const timerLength = 3000;
-    setTimeout(() => {
-      const timeNow = new Date().getTime();
-      const timeDiff = timeNow - lastTypingTime;
-      if (timeDiff >= timerLength && typing) {
-        socket.emit("stop typing", selectedChat._id);
-        setTyping(false);
-      }
-    }, timerLength);
-  };
+  if (!typing) {
+    setTyping(true);
+    socket.emit("typing", selectedChat._id);
+  }
+
+  if (typingTimeoutRef.current) {
+    clearTimeout(typingTimeoutRef.current);
+  }
+
+  typingTimeoutRef.current = setTimeout(() => {
+    socket.emit("stop typing", selectedChat._id);
+    setTyping(false);
+  }, 3000);
+};
 
   return (
     <>
@@ -204,13 +227,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             flexDirection="column"
             justifyContent="flex-end"
             p={3}
-            bgcolor="#E8E8E8"
             borderRadius={2}
             width={"100%"}
             height={"100%"}
             overflow="hidden"
             sx={{
-              backgroundColor: theme.palette.background.default,
+              backgroundColor: "rgba(30, 41, 59, 0.5)",
+              backgroundImage: "linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.5) 100%)",
             }}
           >
             {loading ? (
@@ -241,9 +264,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               <Input
                 variant="filled"
                 sx={{
-                  backgroundColor: theme.palette.background.extra.default,
+                  backgroundColor: "rgba(30, 41, 59, 0.8)",
                   color: theme.palette.text.primary,
                   paddingLeft: 2,
+                  border: "1px solid rgba(148, 163, 184, 0.25)",
+                  borderRadius: "10px",
+                  padding: "0.75rem",
+                  "&:hover": {
+                    borderColor: "rgba(148, 163, 184, 0.35)",
+                  },
+                  "&:focus": {
+                    outline: "none",
+                    borderColor: "rgba(99, 102, 241, 0.5)",
+                    boxShadow: "0 0 0 3px rgba(99, 102, 241, 0.1)",
+                  },
                 }}
                 placeholder="Enter a message.."
                 value={newMessage}

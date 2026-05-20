@@ -17,11 +17,13 @@ const UserListItem = ({ user, handleFunction }) => {
       onClick={handleFunction}
     >
       <Avatar
-        sx={{ marginRight: 2 }}
+        sx={{ marginRight: 2, backgroundColor: "rgba(99, 102, 241, 0.3)" }}
         size="small"
         alt={user.name}
         src={user.pic}
-      />
+      >
+        {!user.pic || user.pic === "" ? user.name.charAt(0).toUpperCase() : ""}
+      </Avatar>
       <Box>
         <Typography variant="body1">{user.name}</Typography>
         <Typography variant="caption">

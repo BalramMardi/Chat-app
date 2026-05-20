@@ -82,4 +82,29 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { allUsers, registerUser, authUser };
+//@description     Update user profile (picture, name, etc)
+//@route           PUT /api/user/:id
+//@access          Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+  if (req.user._id.toString() !== req.params.id) {
+    res.status(401);
+    throw new Error("Not authorized to update this profile");
+  }
+
+  const { pic } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { pic },
+    { new: true, runValidators: true }
+  ).select("-password");
+
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
+module.exports = { allUsers, registerUser, authUser, updateUserProfile };

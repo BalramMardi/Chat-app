@@ -26,6 +26,20 @@ WhizChat is a full-stack real-time messaging application built for instant, secu
 
 ---
 
+## ScreenShots
+
+![alt text](<./assets/Screenshot 2024-11-26 212525.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212854.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212846.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212838.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212817.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212810.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212759.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212625.png>)
+![alt text](<./assets/Screenshot 2024-11-26 212619.png>)
+
+---
+
 ## 📦 Getting Started
 
 ```bash

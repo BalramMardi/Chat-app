@@ -68,10 +68,18 @@ const ProfileModal = ({ user, children }) => {
           }}
         >
           <Avatar
-            sx={{ width: 150, height: 150, mb: 2 }}
+            sx={{
+              width: 150,
+              height: 150,
+              mb: 2,
+              backgroundColor: "rgba(99, 102, 241, 0.3)",
+              fontSize: "4rem",
+            }}
             src={user.pic}
             alt={user.name}
-          />
+          >
+            {!user.pic || user.pic === "" ? user.name.charAt(0).toUpperCase() : ""}
+          </Avatar>
           <Typography variant="h5" sx={{ fontFamily: "Work Sans" }}>
             Email: {user.email}
           </Typography>

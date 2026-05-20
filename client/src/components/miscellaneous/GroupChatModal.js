@@ -9,7 +9,7 @@ import {
   Box,
 } from "@mui/material";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { ChatState } from "../../Context/ChatProvider";
 import UserBadgeItem from "../userAvatar/UserBadgeItem";
 import UserListItem from "../userAvatar/UserListItem";
@@ -67,7 +67,8 @@ const GroupChatModal = ({ children }) => {
 
   const handleSubmit = async () => {
     if (!groupChatName || selectedUsers.length === 0) {
-      toast.warning("Please fill all the fields", {
+      toast("Please fill all the fields", {
+        icon: "⚠️",
         duration: 5000,
         position: "top",
       });
