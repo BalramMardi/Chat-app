@@ -56,10 +56,14 @@ const accessChat = asyncHandler(async (req, res) => {
 //@access          Protected
 const fetchChats = asyncHandler(async (req, res) => {
   try {
-    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+    Chat.find({
+      users: { $elemMatch: { $eq: req.user._id } },
+      deletedBy: { $ne: req.user._id },
+    })
       .populate("users", "-password")
       .populate("groupAdmin", "-password")
       .populate("latestMessage")
+      .populate("clearedBy.user", "_id") // ← add this
       .sort({ updatedAt: -1 })
       .then(async (results) => {
         results = await User.populate(results, {
@@ -193,6 +197,71 @@ const addToGroup = asyncHandler(async (req, res) => {
   }
 });
 
+
+// PUT /api/chat/clear/:chatId
+const clearChat = asyncHandler(async (req, res) => {
+  const chat = await Chat.findById(req.params.chatId);
+
+  if (!chat) { res.status(404); throw new Error("Chat not found"); }
+
+  if (!chat.users.includes(req.user._id)) {
+    res.status(403); throw new Error("Not authorized");
+  }
+
+  await Chat.findByIdAndUpdate(req.params.chatId, {
+    $pull: { clearedBy: { user: req.user._id } },
+  });
+
+  await Chat.findByIdAndUpdate(req.params.chatId, {
+    $push: { clearedBy: { user: req.user._id, clearedAt: new Date() } },
+  });
+
+  res.json({ success: true, message: "Chat cleared" });
+});
+
+
+// PUT /api/chat/delete/:chatId
+const deleteChat = asyncHandler(async (req, res) => {
+  const chat = await Chat.findById(req.params.chatId);
+
+  if (!chat) { res.status(404); throw new Error("Chat not found"); }
+  if (!chat.users.includes(req.user._id)) {
+    res.status(403); throw new Error("Not authorized");
+  }
+
+  await Chat.findByIdAndUpdate(req.params.chatId, {
+    $pull:      { clearedBy: { user: req.user._id } },
+    $addToSet:  { deletedBy: req.user._id },
+  });
+
+  await Chat.findByIdAndUpdate(req.params.chatId, {
+    $push: { clearedBy: { user: req.user._id, clearedAt: new Date() } },
+  });
+
+  res.json({ success: true });
+});
+
+
+// DELETE /api/chat/:chatId
+const deleteChatForEveryone = asyncHandler(async (req, res) => {
+  const chat = await Chat.findById(req.params.chatId);
+
+  if (!chat) { res.status(404); throw new Error("Chat not found"); }
+
+  if (chat.isGroupChat && chat.groupAdmin.toString() !== req.user._id.toString()) {
+    res.status(403); throw new Error("Only group admin can delete for everyone");
+  }
+
+  if (!chat.users.includes(req.user._id)) {
+    res.status(403); throw new Error("Not authorized");
+  }
+
+  await Message.deleteMany({ chat: req.params.chatId });
+  await Chat.findByIdAndDelete(req.params.chatId);
+
+  res.json({ success: true, message: "Chat deleted for everyone" });
+});
+
 module.exports = {
   accessChat,
   fetchChats,
@@ -200,4 +269,5 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  clearChat, deleteChat, deleteChatForEveryone,
 };

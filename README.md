@@ -1,17 +1,17 @@
-# 💬 WhizChat – Real-Time Chat App
+# WhizChat – Real-Time Chat App
 
 WhizChat is a full-stack real-time messaging application built for instant, secure, and scalable communication. It supports one-to-one and group chats, user authentication, and live typing indicators — all in a responsive, modern UI.
 
 ---
 
-## 🚀 Features
+## Features
 
-- 🔐 Secure user authentication
-- 💬 Real-time one-to-one & group messaging
-- 🟢 Online user status
-- ✍️ Typing indicators
-- 🔔 Instant message delivery with Socket.IO
-- 📱 Responsive design for mobile and desktop
+- Secure user authentication
+- Real-time one-to-one & group messaging
+- Online user status
+- Typing indicators
+- Instant message delivery with Socket.IO
+- Responsive design for mobile and desktop
 
 ---
 
@@ -40,7 +40,7 @@ WhizChat is a full-stack real-time messaging application built for instant, secu
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 ```bash
 # Clone the repository

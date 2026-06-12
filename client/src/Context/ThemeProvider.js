@@ -7,6 +7,9 @@ import React, {
 } from "react";
 import { createTheme } from "@mui/material/styles";
 
+import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+
+
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
@@ -195,8 +198,10 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+   <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <MuiThemeProvider theme={theme}> 
+        {children}
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };

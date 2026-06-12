@@ -44,7 +44,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     },
   };
 
-  const { selectedChat, setSelectedChat, user, notification, setNotification } =
+  const { selectedChat, setSelectedChat, user, notification, setNotification, chats, setChats, socket: ctxSocket, setSocket } =
     ChatState();
 
   const fetchMessages = async () => {
@@ -71,8 +71,47 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       await axios.put(`/api/message/read/${selectedChat._id}`, {}, config);
       socket.emit("mark read", { chatId: selectedChat._id, userId: user._id });
+
+      setNotification((prev) =>
+      prev.filter((n) => n.chat._id !== selectedChat._id)
+    );
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleMessageReceived = async (newMessageReceived) => {
+  // Always update latestMessage in chats list — fixes stale caption
+    setChats((prev) =>
+      prev.map((c) =>
+        c._id === newMessageReceived.chat._id
+          ? { ...c, latestMessage: newMessageReceived }
+          : c
+      )
+    );
+
+    setFetchAgain((prev) => !prev); // still trigger fetchChats for resurface
+
+    if (
+      !selectedChatCompare ||
+      selectedChatCompare._id !== newMessageReceived.chat._id
+    ) {
+      if (!notification.find((n) => n._id === newMessageReceived._id)) {
+        setNotification([newMessageReceived, ...notification]);
+      }
+    } else {
+      setMessages((prev) => [...prev, newMessageReceived]);
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+        await axios.put(`/api/message/read/${newMessageReceived.chat._id}`, {}, config);
+        socket.emit("mark read", { chatId: newMessageReceived.chat._id, userId: user._id });
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
@@ -104,11 +143,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io(ENDPOINT);
-    socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+    const s = io(ENDPOINT);
+    s.emit("setup", user);
+    s.on("connected", () => setSocketConnected(true));
+    s.on("typing", () => setIsTyping(true));
+    s.on("stop typing", () => setIsTyping(false));
+
+    socket = s;
+    setSocket(s); 
+
+    return () => s.disconnect();
+
   }, []);
 
   useEffect(() => {
@@ -142,12 +187,23 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("messages read", ({ chatId, readerId }) => {
       if (selectedChatCompare?._id === chatId) {
         setMessages((prev) =>
-          prev.map((msg) =>
-            msg.readBy.includes(readerId)
+          prev.map((msg) => {
+            const alreadyRead = msg.readBy.some(
+              (id) => (id?._id?.toString() || id?.toString()) === readerId.toString()
+            );
+            return alreadyRead
               ? msg
-              : { ...msg, readBy: [...msg.readBy, readerId] }
-          )
+              : { ...msg, readBy: [...msg.readBy, readerId] };
+          })
         );
+      }
+    });
+
+    socket.on("chat deleted", ({ chatId }) => {
+      setChats((prev) => prev.filter((c) => c._id !== chatId));
+      // If currently viewing that chat, close it
+      if (selectedChatCompare?._id === chatId) {
+        setSelectedChat(null);
       }
     });
   });
@@ -173,6 +229,8 @@ const typingHandler = (e) => {
     setTyping(false);
   }, 3000);
 };
+
+
 
   return (
     <>

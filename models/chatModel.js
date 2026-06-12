@@ -10,6 +10,12 @@ const chatModel = mongoose.Schema(
       ref: "Message",
     },
     groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    deletedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+    clearedBy: [{
+      user:      { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      clearedAt: { type: Date, default: Date.now },
+    }],
   },
   { timestamps: true }
 );

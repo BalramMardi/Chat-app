@@ -8,9 +8,21 @@ const Chat = require("../models/chatModel");
 //@access          Protected
 const allMessages = asyncHandler(async (req, res) => {
   try {
-    const messages = await Message.find({ chat: req.params.chatId })
+    const chat = await Chat.findById(req.params.chatId);
+    const clearEntry = chat?.clearedBy?.find(
+      (c) => c.user.toString() === req.user._id.toString()
+    );
+
+    const query = { chat: req.params.chatId };
+
+    if (clearEntry) {
+      query.createdAt = { $gt: clearEntry.clearedAt };  // only messages AFTER delete
+    }
+
+    const messages = await Message.find(query)
       .populate("sender", "name pic email")
-      .populate("chat");
+      .populate("chat")
+      .populate("readBy", "_id");
     res.json(messages);
   } catch (error) {
     res.status(400);
@@ -33,7 +45,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     sender: req.user._id,
     content: content,
     chat: chatId,
-    readBy: [req.user._id], 
+    readBy: [req.user._id],
   };
 
   try {
@@ -46,7 +58,10 @@ const sendMessage = asyncHandler(async (req, res) => {
       select: "name pic email",
     });
 
-    await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
+    await Chat.findByIdAndUpdate(req.body.chatId, {
+      latestMessage: message,
+      $set: { deletedBy: [] },
+    });
 
     res.json(message);
   } catch (error) {

@@ -95,6 +95,10 @@ io.on("connection", (socket) => {
     socket.in(chatId).emit("messages read", { chatId, readerId: userId });
   });
 
+  socket.on("chat deleted", ({ chatId, deletedBy }) => {
+    socket.in(chatId).emit("chat deleted", { chatId, deletedBy });
+  });
+
   socket.off("setup", () => {
     console.log("USER DISCONNECTED");
     socket.leave(userData._id);

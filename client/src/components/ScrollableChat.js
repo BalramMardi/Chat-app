@@ -13,23 +13,24 @@ import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";  
 
 const MessageStatus = ({ message, currentUserId, chatUsers }) => {
-  // Only show ticks on your own messages
-  if (message.sender._id !== currentUserId) return null;
+  if (!message.sender || message.sender._id !== currentUserId) return null;
 
-  const totalRecipients = chatUsers.filter(u => u._id !== currentUserId).length;
-  const readCount = message.readBy.filter(id => id !== currentUserId).length;
+  const totalRecipients = chatUsers.filter(
+    (u) => (u._id?.toString() || u.toString()) !== currentUserId  
+  ).length;
 
-  // All recipients have read it
-  if (readCount >= totalRecipients) {
+  const readCount = (message.readBy || []).filter(
+    (id) => (id?._id?.toString() || id?.toString()) !== currentUserId 
+  ).length;
+
+  if (readCount >= totalRecipients && totalRecipients > 0) {
     return <DoneAllIcon sx={{ fontSize: 14, color: "#60a5fa", ml: 0.5 }} />;
   }
 
-  // Message exists in DB (we have _id) but nobody read yet = delivered
   if (message._id) {
     return <DoneAllIcon sx={{ fontSize: 14, color: "#94a3b8", ml: 0.5 }} />;
   }
 
-  // Optimistic message, not yet confirmed by server = sent
   return <DoneIcon sx={{ fontSize: 14, color: "#94a3b8", ml: 0.5 }} />;
 };
 
@@ -86,7 +87,7 @@ const ScrollableChat = ({ messages }) => {
                   message={m}
                   currentUserId={user._id}
                   chatUsers={m.chat.users}
-              />
+                />
             </span>
           </div>
         ))}
