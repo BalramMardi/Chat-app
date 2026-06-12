@@ -15,7 +15,7 @@ WhizChat is a full-stack real-time messaging application built for instant, secu
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React.js, Tailwind CSS, Material UI
 - **Backend**: Node.js, Express.js
